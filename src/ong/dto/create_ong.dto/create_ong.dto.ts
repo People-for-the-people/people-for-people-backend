@@ -1,10 +1,7 @@
-import { IsBoolean, IsNumber, IsString } from 'class-validator';
+import { IsEmail, IsString } from 'class-validator';
 import { AddressDto } from '../address.dto/address.dto';
 
-export class OngDto {
-  @IsNumber()
-  id: number;
-
+export class CreateOngDto {
   @IsString()
   name: string;
 
@@ -12,16 +9,13 @@ export class OngDto {
   logoUrl: string;
 
   @IsString()
+  nature: string;
+
+  @IsEmail()
   email: string;
 
   @IsString()
   phoneNumber: string;
-
-  @IsBoolean()
-  verified: boolean;
-
-  @IsString()
-  nature: string;
 
   address: AddressDto;
 }
