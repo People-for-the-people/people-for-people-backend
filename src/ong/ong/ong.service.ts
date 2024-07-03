@@ -15,25 +15,21 @@ export class OngService {
   ) {}
 
   async create(ong: CreateOngDto): Promise<OngDto> {
-    let ongEntity = new OngEntity();
+    const { address } = ong;
+
     let addressEntity = new AddressEntity();
-
-    addressEntity.city = ong.address.city;
-    addressEntity.country = ong.address.country;
-    addressEntity.state = ong.address.state;
-    addressEntity.postalCode = ong.address.postalCode;
-    addressEntity.streetName = ong.address.streetName;
-    addressEntity.number = ong.address.number;
-
+    Object.assign(addressEntity, address);
     addressEntity = await this.addressRepository.save(addressEntity);
 
-    ongEntity.name = ong.name;
-    ongEntity.logoUrl = ong.logoUrl;
-    ongEntity.nature = ong.nature;
-    ongEntity.email = ong.email;
-    ongEntity.phoneNumber = ong.phoneNumber;
-    ongEntity.address = addressEntity;
-
+    let ongEntity = new OngEntity();
+    Object.assign(ongEntity, {
+      name: ong.name,
+      logoUrl: ong.logoUrl,
+      nature: ong.nature,
+      email: ong.email,
+      phoneNumber: ong.phoneNumber,
+      address: addressEntity,
+    });
     ongEntity = await this.ongRepository.save(ongEntity);
 
     return ongEntity;
