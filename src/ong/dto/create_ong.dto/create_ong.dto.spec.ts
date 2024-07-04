@@ -1,9 +1,9 @@
 import { validate } from 'class-validator';
 import { AddressDto } from '../address.dto/address.dto';
-import { OngDto } from './ong.dto';
+import { CreateOngDto } from './create_ong.dto';
 
-describe('OngDto', () => {
-  it('should validate a valid OngDto', async () => {
+describe('CreateOngDto', () => {
+  it('should validate a valid CreateOngDto', async () => {
     const address: AddressDto = {
       city: 'Test City',
       country: 'Test Country',
@@ -13,14 +13,12 @@ describe('OngDto', () => {
       number: '123',
     };
 
-    const dto = new OngDto();
-    dto.id = 1;
+    const dto = new CreateOngDto();
     dto.name = 'Test ONG';
     dto.logoUrl = 'http://test.logo.url';
+    dto.nature = 'Test Nature';
     dto.email = 'test@ong.com';
     dto.phoneNumber = '123456789';
-    dto.verified = true;
-    dto.nature = 'Test Nature';
     dto.address = address;
 
     const validationErrors = await validate(dto);
@@ -28,11 +26,10 @@ describe('OngDto', () => {
   });
 
   it('should fail validation if required fields are missing', async () => {
-    const dto = new OngDto();
+    const dto = new CreateOngDto();
     const validationErrors = await validate(dto);
 
     expect(validationErrors.length).toBeGreaterThan(0);
-    expect(validationErrors.some((err) => err.property === 'id')).toBeTruthy();
     expect(
       validationErrors.some((err) => err.property === 'name'),
     ).toBeTruthy();
@@ -40,20 +37,17 @@ describe('OngDto', () => {
       validationErrors.some((err) => err.property === 'logoUrl'),
     ).toBeTruthy();
     expect(
+      validationErrors.some((err) => err.property === 'nature'),
+    ).toBeTruthy();
+    expect(
       validationErrors.some((err) => err.property === 'email'),
     ).toBeTruthy();
     expect(
       validationErrors.some((err) => err.property === 'phoneNumber'),
     ).toBeTruthy();
-    expect(
-      validationErrors.some((err) => err.property === 'verified'),
-    ).toBeTruthy();
-    expect(
-      validationErrors.some((err) => err.property === 'nature'),
-    ).toBeTruthy();
   });
 
-  it('should fail validation if id is not a number', async () => {
+  it('should fail validation if email is invalid', async () => {
     const address: AddressDto = {
       city: 'Test City',
       country: 'Test Country',
@@ -63,18 +57,18 @@ describe('OngDto', () => {
       number: '123',
     };
 
-    const dto = new OngDto();
-    dto.id = 'not-a-number' as any;
+    const dto = new CreateOngDto();
     dto.name = 'Test ONG';
     dto.logoUrl = 'http://test.logo.url';
-    dto.email = 'test@ong.com';
-    dto.phoneNumber = '123456789';
-    dto.verified = true;
     dto.nature = 'Test Nature';
+    dto.email = 'invalid-email';
+    dto.phoneNumber = '123456789';
     dto.address = address;
 
     const validationErrors = await validate(dto);
     expect(validationErrors.length).toBeGreaterThan(0);
-    expect(validationErrors.some((err) => err.property === 'id')).toBeTruthy();
+    expect(
+      validationErrors.some((err) => err.property === 'email'),
+    ).toBeTruthy();
   });
 });
