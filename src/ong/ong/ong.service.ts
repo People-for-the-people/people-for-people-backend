@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { OngEntity } from '../entity/ong.entity/ong.entity';
 import { Repository } from 'typeorm';
 import { AddressEntity } from '../entity/address.entity/address.entity';
+import { AddressDto } from '../dto/address.dto/address.dto';
 
 @Injectable()
 export class OngService {
@@ -15,24 +16,35 @@ export class OngService {
   ) {}
 
   async create(ong: CreateOngDto): Promise<OngDto> {
-    const { address } = ong;
+    try {
+      const addressEntity = await this.saveOngAddress(ong.address);
 
-    let addressEntity = new AddressEntity();
-    Object.assign(addressEntity, address);
-    addressEntity = await this.addressRepository.save(addressEntity);
+      let ongEntity = new OngEntity();
+      Object.assign(ongEntity, {
+        name: ong.name,
+        logoUrl: ong.logoUrl,
+        nature: ong.nature,
+        email: ong.email,
+        phoneNumber: ong.phoneNumber,
+        address: addressEntity,
+      });
+      ongEntity = await this.ongRepository.save(ongEntity);
 
-    let ongEntity = new OngEntity();
-    Object.assign(ongEntity, {
-      name: ong.name,
-      logoUrl: ong.logoUrl,
-      nature: ong.nature,
-      email: ong.email,
-      phoneNumber: ong.phoneNumber,
-      address: addressEntity,
-    });
-    ongEntity = await this.ongRepository.save(ongEntity);
+      return ongEntity;
+    } catch {
+      throw new Error('Erro ao criar ONG');
+    }
+  }
 
-    return ongEntity;
+  private async saveOngAddress(address: AddressDto): Promise<AddressEntity> {
+    try {
+      let addressEntity = new AddressEntity();
+      Object.assign(addressEntity, address);
+      addressEntity = await this.addressRepository.save(addressEntity);
+      return addressEntity;
+    } catch {
+      throw new Error();
+    }
   }
 
   async findAll(): Promise<OngDto[]> {
